@@ -5,3 +5,4 @@
 /public_old
 compress.js
 .env
+db/conn.js
