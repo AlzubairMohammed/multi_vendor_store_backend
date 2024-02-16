@@ -261,12 +261,33 @@ exports.getProducts = async (req, res, next) => {
 exports.createProducts = async (req, res, next) => {
   let transaction;
   let product_data = req.body.product_data;
-  let images_data = req.body.images_data;
+  let images_data = [];
   let variation_data = req.body.variation_data;
   let variation_attributes_data = req.body.variation_attributes_data;
+  /* New file upload*/
+  const base64Data = req.body.images_data[0].image;
+  const matches = base64Data.match(/^data:image\/([A-Za-z-+/]+);base64,(.+)$/);
+
+  if (!matches || matches.length !== 3) {
+    return res.status(400).json({ message: "Invalid Base64 image data" });
+  }
+
+  const fileExtension = matches[1];
+  const base64Image = matches[2];
+  const fileName = Date.now() + "." + fileExtension;
+  const filePath = "uploads/products/" + fileName;
+
+  images_data[0] = { image: fileName };
+  fs.writeFile(filePath, base64Image, "base64", (err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error saving image" });
+    }
+
+    res.json({ filename: fileName, path: filePath });
+  });
+  /* New file upload*/
   try {
     transaction = await sequelize.transaction();
-    console.log(req.body);
     const product = await conn.products.create(product_data, {
       transaction,
     });

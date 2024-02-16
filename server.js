@@ -30,16 +30,16 @@ const port = process.env.PORT || 3030;
 const app = express();
 const bodyParser = require("body-parser");
 const { authenticate } = require("./middleware/authenticate.js");
-app.use(bodyParser.json());
 app.use(cors());
 app.use(
-    fileEasyUpload({
-        app,
-        fileUploadOptions: {
-            limits: { fileSize: 50 * 1024 * 1024 },
-        },
-    })
+  fileEasyUpload({
+    app,
+    fileUploadOptions: {
+      limits: { fileSize: 50 * 1024 * 1024 },
+    },
+  })
 );
+app.use(bodyParser.json({ limit: "10000mb" }));
 //app.use(express.static(__dirname + "/public/"));
 // app.use(cookieParser());
 app.use("/api/static", express.static("public"));

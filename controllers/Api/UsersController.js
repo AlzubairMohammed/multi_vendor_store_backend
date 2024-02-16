@@ -14,7 +14,7 @@ exports.register = async (req, res, next) => {
     transaction = await sequelize.transaction();
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(req?.body?.password, salt);
-    user_data.password = hash;
+    req.body.password = hash;
     // create user
     const result = await conn.users.create(req?.body, { transaction });
 
@@ -48,7 +48,7 @@ exports.createVendor = async (req, res, next) => {
     transaction = await sequelize.transaction();
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(req?.body?.password, salt);
-    req.body.password = hash;
+    user_data.password = hash;
     // create user
     const user = await conn.users.create(user_data, { transaction });
     store_data = {
