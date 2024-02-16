@@ -6,3 +6,4 @@
 compress.js
 .env
 db/conn.js
+uploads/*
