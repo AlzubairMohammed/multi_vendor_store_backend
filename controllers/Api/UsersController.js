@@ -112,6 +112,7 @@ exports.login = async (req, res) => {
       where: {
         id: existingUser?.id,
       },
+      include: ["store_details"],
     });
 
     const token = jwt.sign(
@@ -131,8 +132,8 @@ exports.login = async (req, res) => {
         user: {
           id: found_user?.id,
           name: found_user?.name,
-          store_details: found_user?.store_details,
         },
+        store_details: found_user?.store_details[0],
       },
     });
   } catch (error) {
