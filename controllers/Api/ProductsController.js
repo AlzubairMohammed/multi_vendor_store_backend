@@ -454,6 +454,14 @@ exports.paginateByVendorId = async (req, res, next) => {
           as: "sub_category",
         },
         {
+          model: conn.product_images,
+          as: "product_images",
+        },
+        {
+          model: conn.product_variations,
+          as: "product_variations",
+        },
+        {
           model: conn.users,
           as: "vendor",
           include: [
