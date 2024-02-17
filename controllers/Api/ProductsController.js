@@ -282,8 +282,6 @@ exports.createProducts = async (req, res, next) => {
     if (err) {
       return res.status(500).json({ message: "Error saving image" });
     }
-
-    res.json({ filename: fileName, path: filePath });
   });
   /* New file upload*/
   try {
