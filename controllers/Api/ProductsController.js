@@ -1,6 +1,7 @@
 const { conn, sequelize } = require("../../db/conn");
 const { Sequelize, Op, Model, DataTypes } = require("sequelize");
 const fs = require("fs");
+const { stringify } = require("querystring");
 
 exports.selectProductsByFilter = async (req, res, next) => {
   var params = {
@@ -264,25 +265,34 @@ exports.createProducts = async (req, res, next) => {
   let images_data = [];
   let variation_data = req.body.variation_data;
   let variation_attributes_data = req.body.variation_attributes_data;
+
+  const productImage = handleImage(
+    req.body.images_data[0].image,
+    "uploads/products/"
+  );
+  images_data[0] = { image: productImage };
+
   /* New file upload*/
-  const base64Data = req.body.images_data[0].image;
-  const matches = base64Data.match(/^data:image\/([A-Za-z-+/]+);base64,(.+)$/);
+  function handleImage(base64Data, path) {
+    const matches = base64Data.match(
+      /^data:image\/([A-Za-z-+/]+);base64,(.+)$/
+    );
 
-  if (!matches || matches.length !== 3) {
-    return res.status(400).json({ message: "Invalid Base64 image data" });
-  }
-
-  const fileExtension = matches[1];
-  const base64Image = matches[2];
-  const fileName = Date.now() + "." + fileExtension;
-  const filePath = "uploads/products/" + fileName;
-
-  images_data[0] = { image: fileName };
-  fs.writeFile(filePath, base64Image, "base64", (err) => {
-    if (err) {
-      return res.status(500).json({ message: "Error saving image" });
+    if (!matches || matches.length !== 3) {
+      return res.status(400).json({ message: "Invalid Base64 image data" });
     }
-  });
+
+    const fileExtension = matches[1];
+    const base64Image = matches[2];
+    const fileName = Date.now() + "." + fileExtension;
+    const filePath = path + fileName;
+    fs.writeFile(filePath, base64Image, "base64", (err) => {
+      if (err) {
+        return res.status(500).json({ message: "Error saving image" });
+      }
+    });
+    return filePath;
+  }
   /* New file upload*/
   try {
     transaction = await sequelize.transaction();
@@ -326,6 +336,10 @@ exports.createProducts = async (req, res, next) => {
             ...variation_data[i].variation_attributes[j],
             variation_id: variations.id,
           };
+          variation_data[i].variation_attributes[j].image = handleImage(
+            variation_data[i].variation_attributes[j].image,
+            "uploads/productAttributes"
+          );
           const variation_attributes = await conn.variation_attributes.create(
             variation_data[i].variation_attributes[j],
             { transaction }
@@ -458,6 +472,7 @@ exports.paginateByVendorId = async (req, res, next) => {
         {
           model: conn.product_variations,
           as: "product_variations",
+          include: ["variation_attributes"],
         },
         {
           model: conn.users,
