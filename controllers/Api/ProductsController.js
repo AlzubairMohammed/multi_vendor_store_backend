@@ -266,10 +266,7 @@ exports.createProducts = async (req, res, next) => {
   let variation_data = req.body.variation_data;
   let variation_attributes_data = req.body.variation_attributes_data;
 
-  const productImage = handleImage(
-    req.body.images_data[0].image,
-    "uploads/products/"
-  );
+  const productImage = handleImage(req.body.images_data[0].image, "products/");
   images_data[0] = { image: productImage };
 
   /* New file upload*/
@@ -286,7 +283,7 @@ exports.createProducts = async (req, res, next) => {
     const base64Image = matches[2];
     const fileName = Date.now() + "." + fileExtension;
     const filePath = path + fileName;
-    fs.writeFile(filePath, base64Image, "base64", (err) => {
+    fs.writeFile(`uploads/${filePath}`, base64Image, "base64", (err) => {
       if (err) {
         return res.status(500).json({ message: "Error saving image" });
       }
@@ -338,7 +335,7 @@ exports.createProducts = async (req, res, next) => {
           };
           variation_data[i].variation_attributes[j].image = handleImage(
             variation_data[i].variation_attributes[j].image,
-            "uploads/productAttributes"
+            "productAttributes/"
           );
           const variation_attributes = await conn.variation_attributes.create(
             variation_data[i].variation_attributes[j],
@@ -347,7 +344,6 @@ exports.createProducts = async (req, res, next) => {
         }
       }
     }
-
     console.log({ images_data, variation_data });
 
     await transaction.commit();

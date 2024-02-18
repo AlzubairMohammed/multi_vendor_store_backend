@@ -42,7 +42,7 @@ app.use(
 app.use(bodyParser.json({ limit: "10000mb" }));
 //app.use(express.static(__dirname + "/public/"));
 // app.use(cookieParser());
-app.use("/api/static", express.static("public"));
+app.use("/api/static", express.static("uploads"));
 app.use(file_upload);
 //app.use(authenticate);
 app.use("/api/ads", ads);
